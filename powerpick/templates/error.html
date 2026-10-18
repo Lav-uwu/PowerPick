@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon with context %}
+{% block title %}{{ code }} · PowerPick{% endblock %}
+{% block content %}<div class="container empty-state large-empty"><span class="error-code">{{ code }}</span><h1>Let's get you back.</h1><p>{{ message }}</p><a class="button button-dark" href="{{ url_for('store.home') }}">Back to the store {{ icon('arrow') }}</a></div>{% endblock %}

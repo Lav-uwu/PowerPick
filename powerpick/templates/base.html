@@ -1,0 +1,29 @@
+{% from 'partials/macros.html' import icon, csrf with context %}
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PowerPick — electrical supplies for electricians. Shop cables, switchgear, hand tools and installation essentials across India.">
+  <meta name="theme-color" content="#153d35"><meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}PowerPick — Electrical supplies. Job ready.{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/brand-icon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='assets/brand-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="utility-bar"><div class="container"><span>Electrical essentials. Delivered across India.</span><a href="{{ url_for('store.policy', policy='shipping') }}">Free delivery over {{ shipping_threshold|money }} {{ icon('arrow',14) }}</a></div></div>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="{{ url_for('store.home') }}" aria-label="PowerPick home"><img src="{{ url_for('static', filename='assets/brand-icon.png') }}" width="39" height="39" alt=""><span>PowerPick<span class="brand-period">.</span></span></a>
+    <nav class="main-nav" aria-label="Main navigation"><a href="{{ url_for('store.home', _anchor='catalog') }}" class="{{ 'active' if request.endpoint == 'store.home' else '' }}">Shop supplies</a><a href="{{ url_for('store.account') }}">Your orders</a><a href="{{ url_for('store.support') }}">Help & support</a>{% if g.user and g.user.is_admin %}<a href="{{ url_for('admin.dashboard') }}">Admin</a>{% endif %}</nav>
+    <div class="header-actions"><a class="icon-link search-link" href="{{ url_for('store.home', _anchor='search') }}" aria-label="Search products">{{ icon('search') }}</a><a class="icon-link account-link" href="{{ url_for('store.account') if g.user else url_for('auth.login') }}" aria-label="{{ 'Your account' if g.user else 'Sign in' }}">{{ icon('user') }}</a><a class="basket-link" aria-label="Basket, {{ cart_count }} {{ 'item' if cart_count == 1 else 'items' }}" href="{{ url_for('store.cart') }}">{{ icon('bag') }}<span class="basket-label">Basket</span><span class="cart-count" data-cart-count>{{ cart_count }}</span></a></div>
+  </div></header>
+  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="container flash-stack">{% for category, message in messages %}<div class="flash {{ category }}" role="status">{{ icon('check' if category == 'success' else 'box',18) }}<span>{{ message }}</span></div>{% endfor %}</div>{% endif %}{% endwith %}
+  <main id="main">{% block content %}{% endblock %}</main>
+  <footer class="site-footer"><div class="container footer-top"><div><a class="footer-brand" href="{{ url_for('store.home') }}">PowerPick.</a><p>For the work ahead.<br>Electrical supplies for India's electricians.</p></div><div class="footer-links"><a href="{{ url_for('store.support') }}">Contact & FAQs {{ icon('diagonal',16) }}</a><a href="{{ url_for('store.policy', policy='shipping') }}">Shipping & delivery</a><a href="{{ url_for('store.policy', policy='returns') }}">Returns & refunds</a><a href="{{ url_for('store.policy', policy='warranty') }}">Product warranty</a></div><div class="footer-links"><a href="{{ url_for('store.policy', policy='privacy') }}">Privacy policy</a><a href="{{ url_for('store.policy', policy='terms') }}">Terms of service</a><a href="{{ url_for('admin.dashboard') }}">Store administration</a><span class="footer-locale">India · English · INR ₹</span></div></div><div class="container footer-bottom"><span>© 2026 PowerPick</span><span>Illustrative product images. See each listing for specifications.</span></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

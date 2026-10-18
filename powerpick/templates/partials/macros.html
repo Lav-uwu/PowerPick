@@ -1,0 +1,54 @@
+{# Reusable, accessible interface primitives. Icons are inline and need no library. #}
+{% macro icon(name, size=20) -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{% if name == 'arrow' %}<path d="M4 12h16m-6-6 6 6-6 6"/>
+{% elif name == 'diagonal' %}<path d="M6 18 18 6M6 6h12v12"/>
+{% elif name == 'search' %}<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>
+{% elif name == 'bag' %}<path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 7V6a4 4 0 0 1 8 0v1"/>
+{% elif name == 'user' %}<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>
+{% elif name == 'plus' %}<path d="M12 5v14M5 12h14"/>
+{% elif name == 'minus' %}<path d="M5 12h14"/>
+{% elif name == 'check' %}<path d="m5 12 4 4L19 6"/>
+{% elif name == 'truck' %}<path d="M2 5h12v12H2zM14 9h4l4 4v4h-8"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>
+{% elif name == 'box' %}<path d="m12 2 9 5-9 5-9-5 9-5ZM3 7v10l9 5 9-5V7M12 12v10M7.5 4.5l9 5"/>
+{% elif name == 'return' %}<path d="M4 9h10a7 7 0 1 1 0 14M4 9l5-5M4 9l5 5" transform="translate(0 -2)"/>
+{% elif name == 'shield' %}<path d="M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6l-9-4Z"/><path d="m8 12 3 3 5-6"/>
+{% elif name == 'mail' %}<rect x="2" y="4" width="20" height="16" rx="1"/><path d="m2 5 10 8L22 5"/>
+{% elif name == 'star' %}<path d="m12 3 2.8 5.8 6.4.9-4.6 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4L2.8 9.7l6.4-.9L12 3Z"/>
+{% elif name == 'close' %}<path d="m6 6 12 12M6 18 18 6"/>
+{% elif name == 'filter' %}<path d="M4 7h16M7 12h10M10 17h4"/>
+{% elif name == 'lock' %}<rect x="4" y="10" width="16" height="12" rx="1"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>
+{% else %}<path d="M4 6h16M4 12h16M4 18h16"/>{% endif %}
+</svg>
+{%- endmacro %}
+
+{% macro csrf() -%}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{%- endmacro %}
+
+{% macro art(product, extra='') -%}
+{% if product.image_url %}
+<img class="product-art {{ extra }}" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+{% else %}
+<div class="product-art sprite {{ extra }}" role="img" aria-label="Illustration of {{ product.name }}" style="--image-x: {{ (product.image_index % 4) * 100 / 3 }}%; --image-y: {{ (product.image_index // 4) * 50 }}%"></div>
+{% endif %}
+{%- endmacro %}
+
+{% macro product_card(product) -%}
+<article class="product-card">
+  <a href="{{ url_for('store.product_detail', slug=product.slug) }}" class="product-image-link" tabindex="-1" aria-hidden="true">{{ art(product) }}{% if product.stock < 10 %}<span class="stock-flag {{ 'sold-out' if product.stock == 0 else '' }}">{{ 'Out of stock' if product.stock == 0 else 'Low stock' }}</span>{% endif %}</a>
+  <div class="product-copy">
+    <p class="product-category">{{ product.category }}</p>
+    <h3><a href="{{ url_for('store.product_detail', slug=product.slug) }}">{{ product.name }}</a></h3>
+    <p class="product-spec">{{ product.specification.split(' · ')[0] }} <span>·</span> {{ product.unit }}</p>
+    <div class="product-bottom"><div><strong class="product-price">{{ product.price|money }}</strong><span class="tax-note">incl. GST</span></div>
+      <form method="post" action="{{ url_for('store.cart_add') }}" data-add-cart>{{ csrf() }}<input type="hidden" name="product_id" value="{{ product.id }}"><input type="hidden" name="quantity" value="1"><button class="add-button" aria-label="Add {{ product.name }} to basket" {% if not product.stock %}disabled{% endif %}>{{ icon('plus') }}</button></form>
+    </div>
+    <p class="stock-line {{ 'unavailable' if product.stock == 0 else '' }}"><span></span>{{ product.stock_label }}{% if product.rating %}<span class="rating">{{ icon('star', 13) }} {{ product.rating }}</span>{% endif %}</p>
+  </div>
+</article>
+{%- endmacro %}
+
+{% macro summary(quote) -%}
+<dl class="summary-lines"><div><dt>Subtotal <small>(incl. GST)</small></dt><dd>{{ quote.subtotal|money }}</dd></div><div><dt>Delivery within India</dt><dd>{{ quote.shipping|money if quote.shipping else 'Free' }}</dd></div><div class="included-tax"><dt>GST included above</dt><dd>{{ quote.tax|money }}</dd></div><div class="summary-total"><dt>Total</dt><dd>{{ quote.total|money }}</dd></div></dl>
+{%- endmacro %}
+
+{% macro status(value) -%}<span class="status status-{{ value }}">{{ {'demo_paid':'Demo approved', 'demo_failed':'Demo declined', 'demo_refunded':'Demo refunded', 'due_on_delivery':'Due on delivery', 'payment_review':'Payment review', 'refunded_offline':'Refunded offline', 'collected':'Collected on delivery'}.get(value, value.replace('_',' ').capitalize()) }}</span>{%- endmacro %}

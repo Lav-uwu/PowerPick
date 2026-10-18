@@ -1,0 +1,8 @@
+[project]
+name = "powerpick"
+version = "1.0.0"
+description = "A straightforward Flask store for electrical trade supplies."
+requires-python = ">=3.11"
+
+[tool.vercel]
+entrypoint = "app:app"
